@@ -1,0 +1,15 @@
+[
+	{
+		"label": "Documents",
+		"icon": "fa fa-folder",
+		"pathName": "Documents",
+		"children": [
+			{
+				"label": "Document 1-1",
+				"icon": "fa fa-folder",
+				"pathName": "Documents%%Document 1-1",
+				"children": []
+			}
+		]
+	}
+]
