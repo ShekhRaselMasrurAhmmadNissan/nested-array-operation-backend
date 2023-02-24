@@ -25,9 +25,16 @@ const run = async () => {
 		app.get('/', async (req, res) => {
 			res.send(allData);
 		});
-		app.get('/folders', async (req, res) => {
+
+		app.patch('/folders', async (req, res) => {
+			// Extracting values from req.bodt
 			let { folder, pathName } = req.body;
+
+			/**
+			 * Checking for the folder is exist or not
+			 */
 			const sentLabel = folder.label;
+			// Targeted paths
 			const allPaths = pathName.split('%%');
 			let queryKey = '';
 			allPaths.forEach((path) => {
@@ -41,28 +48,35 @@ const run = async () => {
 			if (result) {
 				return res.send({ status: 'Failed' });
 			}
+
+			/**
+			 * Update part start
+			 */
+			// Setting New folder pathName
 			folder.pathName = pathName + '%%' + folder.label;
+
+			// Making the queries
 			let updateQueryKey = '';
+			let filteringOptions = [];
 			allPaths.forEach((path, index) => {
 				if (index !== allPaths.length - 1) {
-					updateQueryKey += 'children.';
+					updateQueryKey += `children.$[a${index}].`;
+					let option = {};
+					option[`a${index}.label`] = allPaths[index + 1];
+					filteringOptions = [...filteringOptions, option];
 				}
 			});
-			updateQueryKey += 'label';
+			updateQueryKey += 'children';
 
-			const updateQuery = {};
-			updateQuery.label = allPaths[0];
-			updateQuery[updateQueryKey] = allPaths[allPaths.length - 1];
-			const updateResult = FoldersCollection.updateOne(
+			let updateQuery = {};
+			updateQuery[updateQueryKey] = folder;
+			// Update Operation
+			const updateResult = await FoldersCollection.updateOne(
 				{ label: allPaths[0] },
 				{
-					$addToSet: {
-						'children.$[b].children': folder,
-					},
+					$push: updateQuery,
 				},
-				{
-					arrayFilters: [{ 'b.label': allPaths[1] }],
-				}
+				{ arrayFilters: filteringOptions }
 			);
 			res.send({
 				status: 'Success',
