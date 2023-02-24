@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -8,8 +9,7 @@ app.use(express.json());
 app.use(cors());
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri =
-	'mongodb+srv://NestedArray:hIy2RYrs7hSH4lwj@crud-operation.rls08mc.mongodb.net/?retryWrites=true&w=majority';
+const uri = process.env.URI;
 const client = new MongoClient(uri, {
 	useNewUrlParser: true,
 	useUnifiedTopology: true,
